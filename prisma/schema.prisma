@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  messages  Message[]
+  moderatedMessages Message[] @relation("ModeratedBy")
+}
+
+model Message {
+  id           String        @id @default(uuid())
+  content      String
+  category     Category
+  status       MessageStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+  submittedAt  DateTime      @default(now())
+  moderatedAt  DateTime?
+  
+  authorId     String
+  author       User          @relation(fields: [authorId], references: [id])
+  
+  moderatedBy  String?
+  moderator    User?         @relation("ModeratedBy", fields: [moderatedBy], references: [id])
+  
+  @@index([status, createdAt])
+  @@index([category])
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum Category {
+  ACADEMIC
+  DORM
+  SOCIAL
+  GENERAL
+}
+
+enum MessageStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
