@@ -13,18 +13,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(STUDENT)
-  createdAt DateTime @default(now())
-  messages  Message[]
-  moderatedMessages Message[] @relation("ModeratedBy")
+enum Role {
+  STUDENT
+  ADMIN
 }
 
+//enum Category {
+//  ACADEMIC
+//  DORM
+//  SOCIAL
+//  GENERAL
+//}
+
+enum PostCategory{
+    CONFESSIONS
+    TEA
+    WISH
+    NEEDADVICE
+}
+
+enum MessageStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+
+enum Role{
+    ADMIN
+    USER
+} //changes admin and student
+
+//model User {
+//  id        String   @id @default(uuid())
+//  email     String   @unique
+//  password  String
+//  role      Role     @default(STUDENT)
+//  createdAt DateTime @default(now())
+//  messages  Message[]
+//  moderatedMessages Message[] @relation("ModeratedBy")
+//}
+
+model User{
+    id String @id @default(cuid())
+    nickname String?
+    role Role @default(USER)
+    email String @unique
+    image String?
+
+    posts Post[]
+}
+
+
 model Message {
-  id           String        @id @default(uuid())
+  id           String        @id @default(cuid())
   content      String
   category     Category
   status       MessageStatus @default(PENDING)
@@ -42,20 +84,3 @@ model Message {
   @@index([category])
 }
 
-enum Role {
-  STUDENT
-  ADMIN
-}
-
-enum Category {
-  ACADEMIC
-  DORM
-  SOCIAL
-  GENERAL
-}
-
-enum MessageStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
